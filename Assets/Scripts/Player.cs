@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class Player : NetworkBehaviour
 {
+    // PUBLIC GETTERS
+    public Transform InterpolationTarget => _interpolationTarget;
+
     // SERIALIZED MEMBERS
     [Header("Movement Settings")]
     [SerializeField] private float _speed;
@@ -11,6 +14,9 @@ public class Player : NetworkBehaviour
     [Header("Interact Settings")]
     [SerializeField] private float _interactRadius;
     [SerializeField] private ContactFilter2D _contactFilter;
+
+    [Header("References")]
+    [SerializeField] private Transform _interpolationTarget;
 
     // NETWORKED MEMBERS
     [Networked] private NetworkButtons _previousButtons { get; set; }
@@ -50,7 +56,7 @@ public class Player : NetworkBehaviour
             var pickup = collider.GetComponentInParent<Pickup>();
             if (pickup != null)
             {
-                pickup.TryInteract();
+                pickup.Network_TryInteract(this);
                 return;
             }
         }
