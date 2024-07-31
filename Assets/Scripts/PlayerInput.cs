@@ -24,19 +24,18 @@ public class PlayerInput : MonoBehaviour, INetworkRunnerCallbacks
         var data = new NetworkInputData();
 
         if (Input.GetKey(KeyCode.W))
-            data.direction += Vector2.up;
+            data.Direction += Vector2.up;
 
         if (Input.GetKey(KeyCode.S))
-            data.direction += Vector2.down;
+            data.Direction += Vector2.down;
 
         if (Input.GetKey(KeyCode.A))
-            data.direction += Vector2.left;
+            data.Direction += Vector2.left;
 
         if (Input.GetKey(KeyCode.D))
-            data.direction += Vector2.right;
+            data.Direction += Vector2.right;
 
-        if (_local_cachedInteractButton)
-            data.buttons |= NetworkInputData.INTERACT_BUTTON;
+        data.Buttons.Set(EButton.Interact, _local_cachedInteractButton);
         _local_cachedInteractButton = false;
 
         input.Set(data);

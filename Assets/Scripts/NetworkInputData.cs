@@ -1,10 +1,13 @@
 using UnityEngine;
 using Fusion;
 
+enum EButton
+{
+    Interact = 0,
+}
+
 public struct NetworkInputData : INetworkInput
 {
-    public const byte INTERACT_BUTTON = 0x01;
-
-    public byte buttons;
-    public Vector2 direction;
+    public NetworkButtons Buttons;
+    public Vector2 Direction;
 }

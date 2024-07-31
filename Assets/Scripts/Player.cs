@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Player : NetworkBehaviour
 {
+    // SERIALIZED MEMBERS
     [Header("Movement Settings")]
     [SerializeField] private float _speed;
 
@@ -11,29 +12,34 @@ public class Player : NetworkBehaviour
     [SerializeField] private float _interactRadius;
     [SerializeField] private ContactFilter2D _contactFilter;
 
+    // NETWORKED MEMBERS
+    [Networked] private NetworkButtons _previousButtons { get; set; }
+
     // NetworkBehaviour INTERFACE
     public override void FixedUpdateNetwork()
     {
-        if (GetInput(out NetworkInputData data))
+        if (GetInput(out NetworkInputData input))
         {
+            // Get pressed/released state and store latest input as previous
+            var pressed = input.Buttons.GetPressed(_previousButtons);
+            _previousButtons = input.Buttons;
+
             // Interact
-            if ((data.buttons & NetworkInputData.INTERACT_BUTTON) != 0)
-            {
-                TryPickup();
-            }
+            if (pressed.IsSet(EButton.Interact))
+                TryInteract();
 
             // Movement
-            data.direction.Normalize();
+            input.Direction.Normalize();
 
             var newPosition = transform.position;
-            newPosition += (Vector3)(_speed * data.direction * Runner.DeltaTime);
+            newPosition += (Vector3)(_speed * input.Direction * Runner.DeltaTime);
 
             transform.position = newPosition;
         }
     }
 
     // PRIVATE METHODS
-    private void TryPickup()
+    private void TryInteract()
     {
         var colliderResults = new List<Collider2D>();
         var colliderCount = Runner.GetPhysicsScene2D().OverlapCircle(transform.position, _interactRadius, _contactFilter, colliderResults);
@@ -44,7 +50,7 @@ public class Player : NetworkBehaviour
             var pickup = collider.GetComponentInParent<Pickup>();
             if (pickup != null)
             {
-                pickup.TryPickup();
+                pickup.TryInteract();
                 return;
             }
         }
