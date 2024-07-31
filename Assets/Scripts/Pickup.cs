@@ -7,6 +7,9 @@ public class Pickup : NetworkBehaviour
     [Networked(OnChanged = nameof(OnPlayerThatPickedUpChanged))] private Player _network_playerThatPickedUp { get; set; }
     private NetworkBool _network_isPickedUp => _network_playerThatPickedUp != null;
 
+    // SERIALIZED MEMBERS
+    [SerializeField] NetworkTransform _networkTransform;
+
     // NetworkBehaviour INTERFACE
     public override void Spawned()
     {
@@ -47,12 +50,16 @@ public class Pickup : NetworkBehaviour
 
         if (_network_playerThatPickedUp != null)
         {
+            _networkTransform.enabled = false;
+
             transform.SetParent(_network_playerThatPickedUp.InterpolationTarget);
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
         }
         else
         {
+            _networkTransform.enabled = true;
+
             transform.SetParent(null);
         }
     }

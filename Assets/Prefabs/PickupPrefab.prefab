@@ -106,6 +106,7 @@ MonoBehaviour:
   WordOffset: 0
   WordCount: 0
   _interpolationDataSource: 0
+  _networkTransform: {fileID: 2398051505714266663}
 --- !u!1 &2205425341861413617
 GameObject:
   m_ObjectHideFlags: 0
