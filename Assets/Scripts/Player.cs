@@ -10,6 +10,14 @@ public class Player : NetworkBehaviour
     {
         if (GetInput(out NetworkInputData data))
         {
+            // Interact
+            if ((data.buttons & NetworkInputData.INTERACT_BUTTON) != 0)
+            {
+                // TODO
+                Debug.Log("Interact!");
+            }
+
+            // Movement
             data.direction.Normalize();
 
             var newPosition = transform.position;

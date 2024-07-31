@@ -10,9 +10,11 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     // SERIALIZED MEMBERS
     [Header("Scene References")]
     [SerializeField] private Transform _spawnPosition;
+    [SerializeField] private Transform _pickupSpawnPosition;
 
     [Header("Prefab References")]
     [SerializeField] private NetworkPrefabRef _playerPrefab;
+    [SerializeField] private NetworkPrefabRef _pickupPrefab;
 
     // PRIVATE MEMBERS
     private NetworkRunner _runner;
@@ -32,6 +34,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             Scene = SceneManager.GetActiveScene().buildIndex,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
+
+        // Spawn the object to pickup
+        if (_runner.IsServer)
+            _runner.Spawn(_pickupPrefab, _pickupSpawnPosition.position, Quaternion.identity);
     }
 
     // INetworkRunnerCallbacks INTERFACE
@@ -58,25 +64,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    public void OnInput(NetworkRunner runner, NetworkInput input)
-    {
-        var data = new NetworkInputData();
-
-        if (Input.GetKey(KeyCode.W))
-            data.direction += Vector2.up;
-
-        if (Input.GetKey(KeyCode.S))
-            data.direction += Vector2.down;
-
-        if (Input.GetKey(KeyCode.A))
-            data.direction += Vector2.left;
-
-        if (Input.GetKey(KeyCode.D))
-            data.direction += Vector2.right;
-
-        input.Set(data);
-    }
-
+    public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
     public void OnConnectedToServer(NetworkRunner runner) { }
