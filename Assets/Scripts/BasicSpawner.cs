@@ -17,17 +17,17 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private NetworkPrefabRef _pickupPrefab;
 
     // PRIVATE MEMBERS
-    private NetworkRunner _runner;
-    private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new();
+    private Dictionary<PlayerRef, NetworkObject> _server_spawnedCharacters = new();
+    private NetworkRunner _local_runner;
 
     private async void StartGame(GameMode mode)
     {
         // Create the Fusion runner and let it know that we will be providing user input
-        _runner = gameObject.AddComponent<NetworkRunner>();
-        _runner.ProvideInput = true;
+        _local_runner = gameObject.AddComponent<NetworkRunner>();
+        _local_runner.ProvideInput = true;
 
         // Start or join (depends on gamemode) a session with a specific name
-        await _runner.StartGame(new StartGameArgs()
+        await _local_runner.StartGame(new StartGameArgs()
         {
             GameMode = mode,
             SessionName = "TestRoom",
@@ -36,8 +36,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         });
 
         // Spawn the object to pickup
-        if (_runner.IsServer)
-            _runner.Spawn(_pickupPrefab, _pickupSpawnPosition.position, Quaternion.identity);
+        if (_local_runner.IsServer)
+            _local_runner.Spawn(_pickupPrefab, _pickupSpawnPosition.position, Quaternion.identity);
     }
 
     // INetworkRunnerCallbacks INTERFACE
@@ -50,17 +50,17 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 
             // Keep track of the player avatars so we can remove it when they disconnect
-            _spawnedCharacters.Add(player, networkPlayerObject);
+            _server_spawnedCharacters.Add(player, networkPlayerObject);
         }
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
         // Find and remove the players avatar
-        if (_spawnedCharacters.TryGetValue(player, out NetworkObject networkObject))
+        if (runner.IsServer && _server_spawnedCharacters.TryGetValue(player, out NetworkObject networkObject))
         {
             runner.Despawn(networkObject);
-            _spawnedCharacters.Remove(player);
+            _server_spawnedCharacters.Remove(player);
         }
     }
 
@@ -82,7 +82,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     // HELPERS
     private void OnGUI()
     {
-        if (_runner == null)
+        if (_local_runner == null)
         {
             if (GUI.Button(new Rect(0, 0, 200, 40), "Host"))
             {

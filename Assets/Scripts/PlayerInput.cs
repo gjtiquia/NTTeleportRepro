@@ -7,12 +7,12 @@ using Fusion.Sockets;
 public class PlayerInput : MonoBehaviour, INetworkRunnerCallbacks
 {
     // PRIVATE MEMBERS
-    private bool _cachedInteractButton = false;
+    private bool _local_cachedInteractButton = false;
 
     // MonoBehaviour INTERFACE
     private void Update()
     {
-        _cachedInteractButton |= Input.GetKey(KeyCode.F);
+        _local_cachedInteractButton |= Input.GetKey(KeyCode.F);
     }
 
     // INetworkRunnerCallbacks INTERFACE
@@ -35,9 +35,9 @@ public class PlayerInput : MonoBehaviour, INetworkRunnerCallbacks
         if (Input.GetKey(KeyCode.D))
             data.direction += Vector2.right;
 
-        if (_cachedInteractButton)
+        if (_local_cachedInteractButton)
             data.buttons |= NetworkInputData.INTERACT_BUTTON;
-        _cachedInteractButton = false;
+        _local_cachedInteractButton = false;
 
         input.Set(data);
     }

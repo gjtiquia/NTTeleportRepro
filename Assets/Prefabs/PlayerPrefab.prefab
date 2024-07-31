@@ -222,3 +222,4 @@ MonoBehaviour:
   WordCount: 0
   _interpolationDataSource: 0
   _speed: 5
+  _interactRadius: 1.5
